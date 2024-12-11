@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style>
+		.danger {
+			color: red;
+		}
+
+		.success {
+			color: green;
+		}
+	</style>
+</head>
+
+<body>
+	<div style="justify-content: center; display: flex; align-content: center;" >
+	<input type="tel" id="cardId" onkeyup="checkID()"
+		>
+		<span id="message"></span> <!-- แสดงข้อความใน span -->
+
+	</div>
+	<script>
+		function checkID() {
+			const id = document.getElementById('cardId').value; // ดึงค่าจาก input
+			const messageElement = document.getElementById('message'); // ดึง element ที่จะแสดงข้อความ
+			console.log('id :>> ', id);
+
+			// รีเซ็ตข้อความทุกครั้งเมื่อมีการตรวจสอบใหม่
+			messageElement.textContent = '';
+
+			if (id.substring(0, 1) === "0") {
+				messageElement.textContent = "บัตรประชาชนไม่สามารถขึ้นต้นด้วย 0";
+				messageElement.className = 'danger'; // ใช้คลาส danger
+				return false;
+			}
+			if (id.length !== 13) {
+				messageElement.textContent = "บัตรประชาชนต้องมี 13 หลัก";
+				messageElement.className = 'danger'; // ใช้คลาส danger
+				return false;
+			}
+
+			let sum = 0; // กำหนดตัวแปร sum ให้เป็น 0 ก่อนใช้งาน
+
+			// คำนวณเลข 13 หลักของบัตรประชาชน
+			for (let i = 0; i < 12; i++) {
+				sum += parseFloat(id.charAt(i)) * (13 - i);
+			}
+
+			// ตรวจสอบตัวเลขท้ายสุด (หลักที่ 13)
+			if ((11 - (sum % 11)) % 10 !== parseFloat(id.charAt(12))) {
+				messageElement.textContent = "เลขบัตรประชาชนไม่ถูกต้อง";
+				messageElement.className = 'danger'; // ใช้คลาส danger
+				return false;
+			}
+
+			messageElement.textContent = "เลขบัตรประชาชนถูกต้อง!";
+			messageElement.className = 'success'; // ใช้คลาส success
+			return true;
+		}
+	</script>
+
+</body>
+
+</html>
