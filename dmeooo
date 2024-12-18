@@ -1,4 +1,3 @@
-# install pcscd python-pyscard python-pil
 from time import sleep
 
 from smartcard.CardMonitoring import CardMonitor, CardObserver
@@ -7,8 +6,9 @@ from smartcard.System import readers
 from smartcard.util import HexListToBinString, toHexString, toBytes
 import requests
 import base64
+import tkinter as tk
 
-
+token = ''
 # Check card
 SELECT = [0x00, 0xA4, 0x04, 0x00, 0x08]
 THAI_CARD = [0xA0, 0x00, 0x00, 0x00, 0x54, 0x48, 0x00, 0x01]
@@ -212,7 +212,9 @@ class PrintObserver(CardObserver):
                 f.close
 
 
-               
+                url = "https://api.socare.app/api/event_read_card"
+
+                # Data to be sent in the POST request (can be a dictionary, JSON, or any other valid data)
                 data = {
                     "id": cid,
                     "name_th": name_th,
@@ -224,30 +226,43 @@ class PrintObserver(CardObserver):
                     "expire_date": expire_date,
                     "address": address,
                     "img":base64_encoded,
+                    "token":token
                 }
-                self.card_data = data
 
-              
-
-
-        def get_card_data(self):
-                return self.card_data
+                # Send the POST request
+                if cid:
+                    response = requests.post(url, data=data)
+                    print(response)
 
 
 
-def read_card():
-    card_monitor = CardMonitor()
-    observer = SmartCardReader()
-    card_monitor.addObserver(observer)
+        for card in removedcards:
+            print("-Removed: ", toHexString(card.atr))
+            
+            url = "https://api.socare.app/api/event_read_card"
+            data = {
+                "id": "clear"
+            }
+            # Send the POST request
+            response = requests.post(url, data=data)
+
+            print(response)
+
+
+if __name__ == '__main__':
+    print("Insert or remove a smartcard in the system.")
+    print("Press Ctrl+C to exit.")
+    token = input("Token: ")
+    cardmonitor = CardMonitor()
+    cardobserver = PrintObserver()
+    cardmonitor.addObserver(cardobserver)
     try:
-        # Wait for the card to be read
-        while observer.get_card_data() is None:
-            sleep(1)
+        while True:
+            sleep(1) 
     except KeyboardInterrupt:
         pass
     finally:
-        card_monitor.deleteObserver(observer)
-    return observer.get_card_data()
+        cardmonitor.deleteObserver(cardobserver)
 
-
-     
+# Exit program
+sys.exit()        
